@@ -4,6 +4,8 @@ Usage: python3 udp_proxy.py \<local port> \<remote ip> \<remote port>
 
 Run this Script in your server. Then you can connect the game server remote_ip:remote:port by your_server_ip:local_port
 
+The default maximum number of user(inculding dummy) at the same time is 4. It is limit by the Teeworlds server setting "sv_max_clients_per_ip", which default value is 4.
+
 
 原理：
 假设你的机器为A,游戏服务器为B,A<->B之间通讯质量比较差，丢包率为10%。
@@ -13,3 +15,5 @@ Run this Script in your server. Then you can connect the game server remote_ip:r
 如果B到A和C的通讯质量都比较好(前提条件)，A<->C的丢包率只有1%，B<->C丢包率只有1%，那样的话应该能降低整体丢包率。
 
 用的时候只需要把主机地址这一栏改为我的反向代理服务器的地址
+
+只能同时供4个玩家一起使用（包含dummy），这个受到Teeworlds服务器的sv_max_clients_per_ip的限制。
