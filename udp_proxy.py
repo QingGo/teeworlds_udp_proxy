@@ -21,8 +21,8 @@ class UDPClient:
             try:
                 self.proxy_socket.bind(('', self.proxy_port))
                 # if not receive data in two mintue, raise timeout
-                # self.proxy_socket.settimeout(120)
-                self.proxy_socket.setblocking(False)
+                self.proxy_socket.settimeout(120)
+                # self.proxy_socket.setblocking(False)
                 logging.info("New client {}:{} use proxy port {}".format(
                     self.ip, self.port, self.proxy_port))
                 break
@@ -35,11 +35,39 @@ class UDPClient:
     def __str__(self):
         return "UDPClient {}:{}".format(self.ip, self.port)
 
+    def run_send_to_server(self, server_ip, server_port):
+        while True:
+            try:
+                msg = self.send_msg_queue.get(block=True, timeout=120)
+                self.proxy_socket.sendto(msg, (server_ip, server_port))
+                start_time = time.time()
+            except Exception as e:
+                logging.info(type(e))
+                logging.info("Client {}:{} use proxy port {} timeout in send!".format(
+                    self.ip, self.port, self.proxy_port))
+                break
+        return self.ip, self.port
+
+    def run_receive_from_server(self):
+        while True:
+            try:
+                data, addr = self.proxy_socket.recvfrom(32768)
+                # logging.debug("receive {} from server {}:{}".format(
+                #     data, addr[0], addr[1]))
+                self.receive_msg_queue.put(data)
+            except Exception as e:
+                logging.info(type(e))
+                logging.info("Client {}:{} use proxy port {} timeout in receive!".format(
+                    self.ip, self.port, self.proxy_port))
+                break
+        return self.ip, self.port
+
     def run(self, server_ip, server_port):
         start_time = time.time()
         while True:
             # logging.debug("client {}:{} queue size {} before send".format(self.ip, self.port, self.send_msg_queue.qsize()))
             try:
+                # high cpu usage, need optimize
                 msg = self.send_msg_queue.get(block=False)
                 self.proxy_socket.sendto(msg, (server_ip, server_port))
                 start_time = time.time()
@@ -49,7 +77,9 @@ class UDPClient:
                 msg = None
 
             # receive message from server and put it into self receive_msg_queue
+            # need setblocking(False)
             try:
+                # high cpu usage, need optimize
                 data, addr = self.proxy_socket.recvfrom(32768)
                 # logging.debug("receive {} from server {}:{}".format(
                 #     data, addr[0], addr[1]))
@@ -61,6 +91,7 @@ class UDPClient:
                 #     self.ip, self.port, self.proxy_port))
                 pass
             # timeout if not receive message from client and server after 120s
+            # high cpu usage, need optimize
             if time.time() - start_time > 120:
                 break
         return self.ip, self.port
@@ -75,7 +106,7 @@ class UDPClientManager:
 
         self.client_dict = {}
         self.threadExecutor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=num_proxy)
+            max_workers=num_proxy*2)
 
     def isClientExisted(self, ip: str, port: int):
         if (ip, port) in self.client_dict:
@@ -96,15 +127,23 @@ class UDPClientManager:
             self.client_dict[(ip, port)] = client
             logging.info("Add Client {}:{}".format(ip, port))
             # add sub thread to proxy message in two queue
-            future = self.threadExecutor.submit(
-                client.run, self.remote_ip, self.remote_port)
-            # delete client when finish
-            future.add_done_callback(self.delClientAsync)
+            # high cpu usage
+            # future = self.threadExecutor.submit(
+            #     client.run, self.remote_ip, self.remote_port)
+            # separate send and receive with blocking instead
+            future_1 = self.threadExecutor.submit(
+                client.run_send_to_server, self.remote_ip, self.remote_port)
+            future_2 = self.threadExecutor.submit(
+                client.run_receive_from_server)
+            # delete client when either send or receive thread timeout
+            future_1.add_done_callback(self.delClientAsync)
+            future_2.add_done_callback(self.delClientAsync)
             return True
 
     def delClient(self, ip: str, port: int):
-        del self.client_dict[(ip, port)]
-        logging.info("Delete Client {}:{}".format(ip, port))
+        if self.isClientExisted(ip, port):
+            del self.client_dict[(ip, port)]
+            logging.info("Delete Client {}:{}".format(ip, port))
 
     def delClientAsync(self, future):
         ip, port = future.result()
