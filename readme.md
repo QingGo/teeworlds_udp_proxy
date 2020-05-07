@@ -17,3 +17,5 @@ The default maximum number of user(inculding dummy) at the same time is 4. It is
 用的时候只需要把主机地址这一栏改为我的反向代理服务器的地址
 
 只能同时供4个玩家一起使用（包含dummy），这个受到Teeworlds服务器的sv_max_clients_per_ip的限制。
+
+在部署时需要确认\<local port>端口(用于和client通信)，和[22223, 22800]的端口(随机取若干个用来和server通信)可以通过防火墙收发数据。腾讯云和阿里云需要额外在网页控制台配置。普通linux服务器可以通过改iptables配置。
