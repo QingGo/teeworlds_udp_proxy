@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var timeoutSencond = 20
+var timeoutSencond = 120
 var wg = &sync.WaitGroup{}
 
 // var localSocketLock sync.Mutex
@@ -250,8 +250,8 @@ func (manager *UDPClientManager) Run() {
 func main() {
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
-	// log.SetLevel(log.InfoLevel)
+	// log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.InfoLevel)
 	log.SetReportCaller(true)
 
 	if len(os.Args) < 4 {
