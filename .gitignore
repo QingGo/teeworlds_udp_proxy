@@ -156,3 +156,4 @@ vendor/
 
 .vscode/
 udp_proxy
+udp_proxy_docker.tar
