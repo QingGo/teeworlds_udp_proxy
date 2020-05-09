@@ -1,9 +1,11 @@
-FROM golang:1.13.0-stretch AS build-env
+FROM golang:1.11-alpine3.10 AS build-env
 WORKDIR /app
 ADD . /app
+# avoid dynamic linking of net package 
+ENV CGO_ENABLED=0
 RUN cd /app && go build -mod=vendor -o udp_proxy
 
-FROM busybox:glibc
+FROM scratch
 WORKDIR /app
 COPY --from=build-env /app/udp_proxy /app
 
