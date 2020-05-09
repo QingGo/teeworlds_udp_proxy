@@ -152,7 +152,7 @@ cython_debug/
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
 .vscode/
 udp_proxy

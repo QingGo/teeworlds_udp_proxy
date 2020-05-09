@@ -24,6 +24,14 @@ go build udp_proxy.go
 .\udp_proxy <local port> <remote ip> <remote port> (Linux)
 ```
 
+If you want to deploy the golang version proxy into a docker container, you can build the docker image by yourself: 
+```
+go mod init
+go build udp_proxy.go
+go mod vendor
+docker build -t udp_proxy:1.0.0 .
+docker run -d -p <host local port>:<container local port>/udp --name my_udp_proxy udp_proxy:1.0.0 ./udp_proxy <container local port> <remote ip> <remote port>
+```
 
 原理：
 假设你的机器为A,游戏服务器为B,A<->B之间通讯质量比较差，丢包率为10%。
