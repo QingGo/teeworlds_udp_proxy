@@ -3,7 +3,8 @@ WORKDIR /app
 ADD . /app
 # avoid dynamic linking of net package 
 ENV CGO_ENABLED=0
-RUN cd /app && go build -mod=vendor -o udp_proxy
+# if no vendor folder, install git and build by go.mod(may have a network problem)
+RUN cd /app && go build -mod=vendor -o udp_proxy || apk add git && go build -o udp_proxy
 
 FROM scratch
 WORKDIR /app

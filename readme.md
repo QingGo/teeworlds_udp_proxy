@@ -1,3 +1,5 @@
+https://github.com/QingGo/teeworlds_udp_proxy/workflows/.github/workflows/go.yml/badge.svg
+
 A reverse UDP proxy for Teeworlds game play.
 
 Usage: 
