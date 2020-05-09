@@ -1,4 +1,4 @@
-https://github.com/QingGo/teeworlds_udp_proxy/workflows/.github/workflows/go.yml/badge.svg
+![](https://github.com/QingGo/teeworlds_udp_proxy/workflows/Go/badge.svg) ![](https://github.com/QingGo/teeworlds_udp_proxy/workflows/Docker%20Image%20CI/badge.svg)
 
 A reverse UDP proxy for Teeworlds game play.
 
