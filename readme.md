@@ -1,19 +1,8 @@
 ![](https://github.com/QingGo/teeworlds_udp_proxy/workflows/Go/badge.svg) ![](https://github.com/QingGo/teeworlds_udp_proxy/workflows/Docker%20Image%20CI/badge.svg)
 
-A reverse UDP proxy for Teeworlds game play.
+A reverse UDP proxy for Teeworlds game play write by Golang.
 
-Usage: 
-```
-python3 udp_proxy.py <local port> <remote ip> <remote port>
-```
-
-Run this Script in your server. Then you can connect the game server remote_ip:remote:port by your_server_ip:local_port
-
-The default maximum number of user(inculding dummy) at the same time is 4. It is limit by the Teeworlds server setting "sv_max_clients_per_ip", which default value is 4.
-
-In order to improve performance, I rewrite the python code in golang. After the python version is deployed locally, when the client connects to the local server through a reverse proxy, the in-game ping value is about 24, while the relative go version ping value is only about 3, which greatly improves performance.
-
-You can download the binary build of win64 and linux64 from release page, or you can build it by yourself.
+You can download the binary build of win64 and linux64 from [release page](https://github.com/QingGo/teeworlds_udp_proxy/releases), or you can build it by yourself.
 
 * Golang version Build:
 ```
@@ -23,7 +12,7 @@ go build udp_proxy.go
 * Golang version Run:
 ```
 .\udp_proxy.exe <local port> <remote ip> <remote port> (Windows)
-.\udp_proxy <local port> <remote ip> <remote port> (Linux)
+./udp_proxy <local port> <remote ip> <remote port> (Linux)
 ```
 
 If you want to deploy the golang version proxy into a docker container, you can build the docker image by yourself: 
@@ -34,11 +23,26 @@ go mod vendor
 docker build -t udp_proxy:1.0.0 .
 docker run -d -p <host local port>:<container local port>/udp --name my_udp_proxy udp_proxy:1.0.0 ./udp_proxy <container local port> <remote ip> <remote port>
 ```
-Or you could use the docker image build by me in release page:
+Or you could use the docker image build by me in [release page](https://github.com/QingGo/teeworlds_udp_proxy/releases):
 ```
 docker load < ./udp_proxy_docker.tar
 docker run -d -p <host local port>:<container local port>/udp --name my_udp_proxy udp_proxy:1.0.0 ./udp_proxy <container local port> <remote ip> <remote port>
 ```
+
+After runned this Script in your server, you can connect the game server "remote_ip:remote:port" by "your_server_ip:local_port"
+
+The default maximum number of user(inculding dummy) at the same time is 4. It is limit by the Teeworlds server setting "sv_max_clients_per_ip", which default value is 4.
+
+In order to improve performance, I rewrite the python code in golang. After the python version is deployed locally, when the client connects to the local server through a reverse proxy, the in-game ping value is about 24, while the relative go version ping value is only about 3, which greatly improves performance.
+
+Python version should only use for proof of concept.
+
+* Python version Usage: 
+```
+python3 udp_proxy.py <local port> <remote ip> <remote port>
+```
+
+
 
 原理：
 假设你的机器为A,游戏服务器为B,A<->B之间通讯质量比较差，丢包率为10%。
